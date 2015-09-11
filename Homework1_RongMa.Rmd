@@ -1,0 +1,57 @@
+---
+title: "Homework 1"
+author: "Rong Ma"
+date: "Sep 10 2015"
+output: html_document
+---
+
+**
+Bring rectangular data in
+**
+
+First we use read.delim and read.table function in R
+```{r}
+data1 = read.delim('http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt')
+#data2 = read.table('http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt')
+#Error in scan(file, what, nmax, sep, dec, quote, skip, nlines, na.strings,  : 
+#  line 145 did not have 6 elements
+```
+From the R output, we can see the two functions give different results. On the one hand, read.delim gives a data frame with 1704 obs. of 6 variables. On the other hand, by using read.table, there is a report of error which shows "line 145 did not have 6 elements".
+
+The reason for this difference is that, although read.delim is just a wrapper around read.table, the two functions have different settings of arguments such as "fill", "header", "sep" and so on.
+
+To develop a call to read.table that is equivalent to read.delim, we should change some arguments as follows.
+```{r}
+data3 = read.table('http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt', header = T, fill = T, sep = "\t", quote = "\"", dec = ",", comment.char = "")
+```
+By ckecking the workspace, we find that data1 is the same as data3.
+
+**
+Smell test the data
+**
+
+We can try the following.
+```{r}
+is.data.frame(data1)
+is.matrix(data1)
+is.vector(data1)
+is.list(data1)
+```
+And we know it's a data.frame.
+
+As for the class and mode, we have
+```{r}
+mode(data1)
+class(data1)
+```
+
+```{r}
+str(data1)
+```
+So there are 6 variables and 1704 observations/rows.
+
+Except for str, we also have summary, dim that can get these facts about “extent” or “size”.
+```{r}
+summary(data1)
+dim(data1)
+```
