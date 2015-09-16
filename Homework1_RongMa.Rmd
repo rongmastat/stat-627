@@ -5,53 +5,94 @@ date: "Sep 10 2015"
 output: html_document
 ---
 
-**
-Bring rectangular data in
-**
+<br>
 
-First we use read.delim and read.table function in R
+**Bring rectangular data in**
+
+First we use `read.delim()` and `read.table()` function in R to read the data set
 ```{r}
 data1 = read.delim('http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt')
-#data2 = read.table('http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt')
-#Error in scan(file, what, nmax, sep, dec, quote, skip, nlines, na.strings,  : 
-#  line 145 did not have 6 elements
 ```
-From the R output, we can see the two functions give different results. On the one hand, read.delim gives a data frame with 1704 obs. of 6 variables. On the other hand, by using read.table, there is a report of error which shows "line 145 did not have 6 elements".
+```{r, error=TRUE}
+data2 = read.table('http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt')
+```
+From the R output, we can see that the two functions give different results. On the one hand, `read.delim()` gives a data frame with 1704 observations of 6 variables. On the other hand, by using `read.table()`, there is a report of error which shows "*line 146 did not have 6 elements*".
 
-The reason for this difference is that, although read.delim is just a wrapper around read.table, the two functions have different settings of arguments such as "fill", "header", "sep" and so on.
+The reason for this difference is that, although `read.delim()` is just a wrapper around `read.table()`, the two functions have different settings of arguments such as `"fill"`, `"header"`, `"sep"` and so on. We can find this difference by looking up the reference page by entering `?read.table` and `?read.delim`.
 
-To develop a call to read.table that is equivalent to read.delim, we should change some arguments as follows.
+To develop a call to `read.table()` that is equivalent to `read.delim()`, we should make some changes of some arguments as follows.
 ```{r}
 data3 = read.table('http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt', header = T, fill = T, sep = "\t", quote = "\"", dec = ",", comment.char = "")
 ```
-By ckecking the workspace, we find that data1 is the same as data3.
+By ckecking the workspace, we find that data1 is the same as data3, which include data set with 1704 observations of 6 variables.
 
-**
-Smell test the data
-**
+<br>
 
-We can try the following.
+**Smell test the data**
+
+To answer the questions raised in the homework statement, we can try the following.
 ```{r}
 is.data.frame(data1)
 is.matrix(data1)
 is.vector(data1)
 is.list(data1)
 ```
-And we know it's a data.frame.
+And we know it's a `data.frame`, and it's a `list`.
 
 As for the class and mode, we have
 ```{r}
 mode(data1)
 class(data1)
 ```
-
+And the above results show that its mode is `list`, its class is `data.frame`.
 ```{r}
 str(data1)
 ```
 So there are 6 variables and 1704 observations/rows.
 
-Except for str, we also have summary, dim that can get these facts about “extent” or “size”.
+Except for `str`, we also have `summary()`, `dim()` that can get these facts about “extent” or “size”.
 ```{r}
 summary(data1)
 dim(data1)
 ```
+In the output from `summary()`, we can count the observations by adding up the numbers under the variable "country", which gives $12+12+12+12+12+12+1632=1704$; the number of variables can be seen directly from the list of variable names. On the other hand, the function `dim()` shows the dimension of the data matrix, which indicates there are 1704 observations of 6 variables, too.
+
+To get some flavors of each variable, we can see from the output of `str()`. For the variable "country", it is a factor with 142 levels, so is a categorical variable; the variable "year" is of type integer, and we can treat it as ordered categorical variable; the variable "pop" which refers to "population" is numeric, so is a continuous (quantitative) variable; the variable "continent" is a factor with 5 levels, so a categorical variable; the variable "lifeExp" is numeric, so is quantitiative; the variable "gdpPercap" is numeric, so is also a quantitative variable.
+
+<br>
+
+**Explore individual variables**
+
+We pick a categorical variable "continent" and a quantiative variable "lifeExp" to explore.
+
+**Continent**: The possible values for this categorical variable is "Africa" "Americas" "Asia" "Europe" and "Oceania". To see the distribution of this variable, we can draw a histogram as follows.
+```{r}
+library(ggplot2)
+c = ggplot(data1, aes(continent))
+c+geom_histogram()
+```
+
+We can see in this plot that there are more obervations from "Africa" than other continents, whereas only a few observations are from "Oceania". This plot can be treated as an approximation of the distribution of the "continent" variable. We can show this discrete distribution by a vector "probability" as follows, in which each probability is assigned to continents in the order of "Africa" "Americas" "Asia" "Europe" and "Oceania".
+```{r}
+count = c(624,300,396,360,24)
+(probability = count/sum(count))
+```
+
+**lifeExp**: The possible values for this quantitative variable is all real numbers probably between 23.60 and 82.60. The minimum and maximum values are obtained from the `summary()`. The typical value for this variable is 59.47, shown as the "mean" value of the observations. The spread of this variable can be evaluated by variance or range, which can be determined as following.
+```{r}
+var(data1$lifeExp)
+range(data1$lifeExp)
+```
+As for the distribution of this variable, density estimation can be used by calling `geom_density()` in `ggplot2`. We can draw the plot of the distribution density function as following.
+```{r}
+c = ggplot(data1, aes(lifeExp))
+c+geom_density()
+```
+
+We can observe that there are two peaks in the distribution, around 45 and 70, respectively.
+
+**Discussions**
+
+* During I was doing the above homework, I found myself still not quite familiar with the `ggplot2` package. For example, while drawing the histogram of the categorical variable "continent", I didn't figure out how to transfer the counting numbers in the y-coordinate into the probabilities. Obviously, I can do it in `hist()` by setting the argument `freq = FALSE`, but `his()` only accepts numeric values instead of factors. I will go on exploring `ggplot2` later.
+
+* In writing this homework, I am getting used to the RStudio environment as well as the RMarkdown commands. Since I used to work in LaTex, I know how to look for help from Google.
