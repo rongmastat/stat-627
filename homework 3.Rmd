@@ -1,0 +1,88 @@
+---
+title: "Homework 3"
+author: "Rong Ma"
+date: "Nov 2 2015"
+output: html_document
+---
+
+#Revisiting HW4
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+library(plyr)
+library(dplyr)
+library(tidyr)
+gap <- read.delim("http://tiny.cc/gapminder", sep="\t")
+```
+Still we define a function gdprate, from which we can compute the relative increasing rate of GDP per Capita for each country (which is computed by letting $y_n=\frac{x_{n+1}−x_n}{x_n}$, for all n, where $x_{n+1}$ and $x_n$ are two consecutive records of GDP per Capita for the same country, and $y_n$ is the relative increasing rate from the nth value to the (n+1)th value of GDP per Capita).
+```{r}
+gdp.rate <- function(x, year = 12){
+  stopifnot(is.data.frame(x))
+  stopifnot(is.numeric(x$gdpPercap))
+  rate <- x %>% mutate(rate = (gdpPercap - lag(gdpPercap))/lag(gdpPercap)) %>% select(rate)
+  return(rate[2:year,1])
+}
+```
+From the above function, we can find the maximum rate and minimum increasing rate of GDP per Cap for each country during all times.
+```{r}
+gdp.rate.data <- ddply(gap, ~country, gdp.rate)
+years <- gap %>% select(year) %>% unique()
+year.index <- paste0(years[1:11,1], rep("/",11),years[2:12,1])
+names(gdp.rate.data)[-1] <- year.index
+max.rate <- gdp.rate.data %>% select(2:dim(years)[1]) %>% apply(1,max)
+min.rate <- gdp.rate.data %>% select(2:dim(years)[1]) %>% apply(1,min)
+continent <- (gap %>% select(country,continent) %>% unique())[,2]
+extreme.rate.data <- gdp.rate.data %>% mutate(max.rate,min.rate,continent) %>% select(country, continent, max.rate, min.rate)
+knitr::kable(head(extreme.rate.data))
+```
+
+We draw a plot of those maximum and minimum values as follows.
+```{r}
+p <- ggplot(extreme.rate.data,aes(log(max.rate),min.rate)) 
+p + geom_point(aes(colour = continent))
+```
+
+This plot shows the general pattern of the relation between maximum and minimum increasing rate of gdpPercap for all countries.
+
+#Factor Management
+
+For the above derived data.frame `extreme.rate.data`, we first remove the observations associated with the continent of Oceania. We can see the effect of `droplevels()` as following.
+```{r}
+new.extreme.rate.data <- extreme.rate.data %>% filter(continent != "Oceania")
+str(new.extreme.rate.data) #BEFORE droplevels()
+new.extreme.rate.data <- new.extreme.rate.data %>% droplevels()
+str(new.extreme.rate.data) #AFTER droplevels()
+```
+Next we `reorder` the levels of continent in terms of the max.rate in ascending order, instead of the default alphabetic order.
+```{r}
+order.rate.data <- new.extreme.rate.data %>% mutate(continent = reorder(continent, max.rate))
+data.frame(BEFORE = levels(new.extreme.rate.data$continent), AFTER = levels(order.rate.data$continent))
+means.continent <- (order.rate.data %>% group_by(continent) %>% summarize_each(funs(mean), max.rate))
+p <- ggplot(new.extreme.rate.data, aes(x = continent, y = log(max.rate)))
+plot1 <- p + geom_boxplot() + geom_line(data = means.continent, aes(x = continent, y = log(max.rate), group=1)) + labs(title = "BEFORE reordering")
+p <- ggplot(order.rate.data, aes(x = continent, y = log(max.rate)))
+plot2 <- p + geom_boxplot() + geom_line(data = means.continent, aes(x = continent, y = log(max.rate), group=1)) + labs(title = "AFTER reordering")
+grid.arrange(plot1, plot2, ncol=2, nrow =1)
+```
+
+On the other hand, since `arrange` only reorder the observations(rows) based on a variable in descending or ascending order, it doesn't change the order of the levels and has no effect on the plot as above.
+
+#Visualization Design
+
+We revise one of the plot we drew before.
+```{r}
+continent.lifeExp.time <- gap %>% group_by(continent, add = FALSE) %>% group_by(continent, year, add = FALSE) %>% summarise(mean.lifeExp = mean(lifeExp), mean.pop = mean(pop))
+p = ggplot(continent.lifeExp.time, aes(x = year, y = mean.lifeExp, color = continent))
+p + geom_point() + geom_line() + labs(title = "Previous Plot")
+```
+
+We will: (1) reorder the levels of continent in terms of the mean.lifeExp; (2) add size to each point indicating the population; (3) drop the level Oceania due to its small size.
+
+```{r}
+new.plot <- function(data, pch = 21, show_guide = FALSE, range = c(1,40), drop = "Oceania"){
+  p <- ggplot(as.data.frame(data) %>% mutate(continent = reorder(continent, mean.lifeExp)) %>% filter(continent != drop) %>% droplevels(), aes(x = year, y = mean.lifeExp, color = continent)) 
+  p + geom_point(aes(size = mean.pop), pch=pch, show_guide = show_guide) + scale_size_continuous(range=range) + geom_line(aes(order = desc(continent))) + labs(title = "New Plot") + guides(color = guide_legend(reverse = TRUE))         
+}
+new.plot(continent.lifeExp.time)
+```

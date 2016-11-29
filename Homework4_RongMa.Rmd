@@ -1,0 +1,96 @@
+---
+title: "Homework 4"
+author: "Rong Ma"
+date: "11/26/2015"
+output: html_document
+---
+
+```{r}
+library(plyr)
+library(dplyr)
+library(stringr)
+```
+##Loading dirty Gapminder
+
+Read gapminderDataFiveYear_dirty.txt into R. Experiment with `strip.white = FALSE` (default) and `strip.white = TRUE`
+
+```{r}
+#strip.white = FALSE
+gap_dirty.1 <- read.delim("https://raw.githubusercontent.com/STAT545-UBC/STAT545-UBC.github.io/master/gapminderDataFiveYear_dirty.txt", sep = "\t",header = TRUE)
+str(gap_dirty.1)
+#strip.white = TRUE
+gap_dirty.2 <- read.delim("https://raw.githubusercontent.com/STAT545-UBC/STAT545-UBC.github.io/master/gapminderDataFiveYear_dirty.txt", sep = "\t", strip.white = TRUE, header= TRUE)
+str(gap_dirty.2)
+```
+
+###Diference that `strip.white` makes
+In the above output, the level of `region` is 151 when `strip.white = FALSE` whereas the level of `region` is 148 when `strip.white = TRUE`. Since `strip.white` allows the stripping of leading and trailing white space from unquoted character fields. So as we can see in `gap_dirty.1` there is a level "\  Asia_Jordan" of `region`, whereas in `gap_dirty.2` there isn't, becasue it is replaced by "Asia_Jordan". To see it clearly, we have the following.
+```{r}
+Jordan_pattern <- "[^ ]+Jordan"
+#strip.white = FALSE
+grep(Jordan_pattern, levels(gap_dirty.1$region),value = TRUE)
+#strip.white = TRUE
+grep(Jordan_pattern, levels(gap_dirty.2$region),value = TRUE)
+```
+
+Therefore in the following we will continue with `gap_dirty.2`.
+
+##Splitting or Merging
+
+By looking at the columns of this data frame (directly in R studio), we find that the country names and the continent names are combined together. So we will split `region` into country and continent.
+
+```{r}
+regions <- matrix(strsplit(gap_dirty.2$region %>% as.character(), split = "_") %>% unlist, byrow = T, ncol=2)
+continent <- regions[,1]
+country <- regions[,2]
+gap_dirty.2.1 <- cbind(gap_dirty.2,country,continent)[,-5]
+str(gap_dirty.2.1)
+```
+
+##Check Missing Values
+
+```{r}
+#Missing Values?
+anyNA(gap_dirty.2.1)
+#Empty Strings?
+for(i in 1:6) print(grep("^$",gap_dirty.2.1[,i],value = FALSE))
+```
+So we have detected three empty strings under `continent` from the 241 to the 243 line. We first look at these lines and then try to fill them.
+```{r}
+gap_dirty.2.1[241:243,]
+gap_dirty.2.1[241:243,]$continent <- (gap_dirty.2.1 %>% filter(country == "Canada") %>% filter(continent != ""))$continent %>% unique()
+#Note that we need drop the empty levle "" from the continent
+gap_dirty.2.1 <- droplevels(gap_dirty.2.1)
+```
+
+##Inconsistent Capitalization
+
+We find that some of the country names don't have the capitalized first letter, so we first capitalize every initial letters in the country name, and then make some minor adjustments.
+```{r}
+gap_dirty.2.1$country <- gsub("\\b([a-z])", "\\U\\1", gap_dirty.2.1$country, perl = TRUE)
+```
+We find that (1) country names with "and" are now with "And" (2) "Cote d'Ivoire" is now "Cote D'Ivoire" (3) there is a misspelling of "Cote d'Ivoire" as "Cote d'Ivore". In the following we first deal with problem (1) and then deal with (2) and (3) simultaneously.  
+```{r}
+gap_dirty.2.1$country <- gsub("And", replacement = "and", gap_dirty.2.1$country)
+gap_dirty.2.1$country <- gsub("D'Iv\\w{2,}", replacement = "d'Ivoire", gap_dirty.2.1$country)
+```
+
+##Inconsistent Country Name
+
+By looking at the data set, we find that Democratic Republic Of The Congo is consistent in the data set, and we need all of them to be "Congo, Dem. Rep.". Note that only in this case does the word "Democratic" exist, so it is easier for us to make adjustment.
+```{r}
+gap_dirty.2.1$country <- gsub("\\D*Democratic\\D{2,}", replacement = "Congo, Dem. Rep.", gap_dirty.2.1$country)
+```
+
+##Sort the Data in Order
+```{r}
+gap_dirty.2.2 <- gap_dirty.2.1 %>% select(country, year, pop, continent, lifeExp, gdpPercap) %>% arrange(country, year)
+str(gap_dirty.2.2)
+gap_dirty.2.2$country <- as.factor(gap_dirty.2.2$country)
+```
+
+##Final Check
+```{r}
+gm = read.delim('http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt')
+identical(gm, gap_dirty.2.2)
+```

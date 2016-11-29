@@ -1,0 +1,197 @@
+---
+title: "Homework2"
+author: "Rong Ma"
+date: "Oct 1st 2015"
+output:
+  pdf_document: default
+  html_document:
+    fig_height: 5
+    fig_width: 12
+---
+
+
+```{r}
+library(ggplot2)
+library(plyr)
+library(dplyr)
+gm = read.delim('http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt')
+```
+
+**Get the maximum and minimum of GPD per capita for all continents**
+
+```{r}
+by_continent = group_by(gm, continent, add = FALSE)
+extreme.gdp = summarise(by_continent,
+  maxGDP = max(gdpPercap, na.rm = TRUE),
+  country.maxGDP = country[which.max(gdpPercap)],
+  year.maxGDP = year[which.max(gdpPercap)],
+  minGDP = min(gdpPercap, na.rm = TRUE),
+  country.minGDP = country[which.min(gdpPercap)],
+  year.minGDP = year[which.min(gdpPercap)])
+knitr::kable(extreme.gdp)
+```
+
+The above table shows the maximum and the minimum GDP per capita for each continent, with their corresponding country name and the year it happens. For example, the minimum of GDP per capita within Africa from 1952 to 2007 in increments of 5 years (so there will be 12 observations within each country) is 241.1659, which is in Congo, in 2002; the maximum of GDP per capita within Asia during from 1952 to 2007 with increments of 5 years is 113523.1, which is in Kuwait, in 1957.
+```{r}
+p = ggplot(gm, aes(x=gdpPercap, y=country))
+p+geom_point(aes(colour = continent))
+p = ggplot(by_continent, aes(x=gdpPercap,y=continent))
+p+geom_point(aes(colour = continent))
+```
+By looking at the plots drawn by package `ggplot2`, we can see that in the first plot, where the scatter plot of the variable "gdpPercap" is drawn in relation to the variable "country", due to the large number of countries, the name of each country is not discernible. In the second plot, where the scatter plot of the variable "gdpPercap" is drawn in relation to the variable "continent", both the maximum points for all continent are discernible, and we can extract further information that the country attained the maximum GDP per capita around all continents from 1952 to 2007 is in Asia, whereas the minimum points for all continents are not quite discernible due to the heavy tail.
+
+**Look at the spread of GDP per capita within the continents**
+
+To look at the spread of GDP per capita within the continents, we first use `filter()` from `dplyr` to obtain data.frames including observations from the same continent. 
+```{r}
+data.africa = filter(gm, continent == "Africa")
+data.asia = filter(gm, continent == "Asia")
+data.europe = filter(gm, continent == "Europe")
+data.americas = filter(gm, continent == "Americas")
+data.oceania = filter(gm, continent == "Oceania")
+```
+We can look at the data.africa as an example of how `filter` works here.
+```{r}
+data.africa
+```
+The spread of the GDP per capita within each continent can be observed from the quantiles shown in `summary`.
+```{r}
+summary(data.africa)
+summary(data.asia)
+summary(data.europe)
+summary(data.americas)
+summary(data.oceania)
+```
+However, the quantiles shown in the `summary` output above are not straightforward or intuitive enough. We can use `ggplot2` to draw boxplots of "gdpPercap" for observations from each continent.
+```{r}
+p = ggplot(gm, aes(continent, gdpPercap))
+p + geom_boxplot(aes(fill=continent)) + coord_flip()
+```
+From the boxplots, we can see the GPD per capita is more spread in Asia in the sense that it has more outliers or extreme values compared with other continents, which may imply that the economic development of the Asian countries are quite unbalanced. But we should also note that Asia has the largest number of countries among the five continents.
+
+
+**How is life expectancy changing over time on different continents**
+
+We can use the data.frame obtained from previous task, where in each data.frame, the observations are from the same continent. To see how life expectancy chaing over time, we use `arrange()` as following.
+```{r}
+data.africa.time = arrange(data.africa, year)
+data.asia.time = arrange(data.asia, year)
+data.europe.time = arrange(data.europe, year)
+data.americas.time = arrange(data.americas, year)
+data.oceania.time = arrange(data.oceania, year)
+```
+
+To show what we obtained by sorting the observations by "year" in ascending order, here we present the data.americas.time for example.
+```{r}
+data.americas.time
+```
+Thus for each country we have one observation for each year listed in table.
+
+Other data.frame is ordered in the same sense. But as in previous task, it's difficult to have any straightforward sense on how is life expectancy changing over time on each continent by looking at the table as above. So we use `ggplot2` to draw some plots in the following.
+```{r}
+p = ggplot(data.americas.time, aes(x=year,y=lifeExp,group = country))
+p + geom_line(aes(colour = country))+guides(col=guide_legend(nrow=18))
+```
+
+From this plot, we can see in general the life expectancy in Americas in increasing over time, and the difference amonge countries within Americas is getting smaller over time.
+```{r}
+p = ggplot(data.africa.time, aes(x=year,y=lifeExp,group = country))
+p + geom_line(aes(colour = country))+guides(col=guide_legend(nrow=18))
+```
+
+From this plot, we can see although the life expectancy increases over time in general, there is a huge decrease in life expectancy for most of the countries starting at around 1990. One of the most decline in life expectancy appear in Rwanda in around 1990. From Google, we know there is a Rwandan Civil War starting around October 1990, and this can make life expectancy decline suddenly.
+```{r}
+p = ggplot(data.asia.time, aes(x=year,y=lifeExp,group = country))
+p + geom_line(aes(colour = country))+guides(col=guide_legend(nrow=18))
+```
+
+This plot also shows an increase in life expectancy in general sense. However, it also shows there is a huge decline in China starting from about 1967, till around 1976. This fact is due to the Cultural Revolution between 1966 to 1976, during which dramatic political persecution would make life expectancy of China decline a lot.
+```{r}
+p = ggplot(data.oceania.time, aes(x=year,y=lifeExp,group = country))
+p + geom_line(aes(colour = country))
+```
+
+From this plot, we can see the life expectancy of the countries in Oceania is increasing over time, with a relatively constant rate of increase after around 1977 (for New Zealand) and 1967 (for Australia).
+
+To get a general view of how life expectancy changes over time for each continent, we look at the life expectancy averaged over all the countries within each continent for each year listed above.
+```{r}
+continent.time = group_by(by_continent, continent, year, add = FALSE)
+continent.lifeExp.time = summarise(continent.time, mean.lifeExp = mean(lifeExp))
+knitr::kable(continent.lifeExp.time)
+```
+
+Similarly, the table shown above is not straightforward, so we need to look at the corresponding plot.
+```{r}
+p = ggplot(continent.lifeExp.time, aes(x = year, y = mean.lifeExp, color = continent))
+p + geom_point() + geom_line()
+```
+We can see from this plot that, the average life expectancy for the five continent have the same order for each year in the plot: Oceania > Europe > Americas > Asia > Africa. Except for Africa, whose average life expectancy declined after 1992 and increase again in 2002 (maybe due to the social conflicts and the [revitalization](http://www.unep.org/dewa/Africa/publications/AEO-1/019.htm) process), the difference of average life expectancy among other continents became less and less over time.
+
+
+**Discussion**
+
+In some problem settings (such as in task 1 where maximum and minimum values are questioned), tables can give more and relatively concrete information than figures; whereas in other problem settings, figures (boxplots in task 2, tendency plots in task 3) can give more intuitions and straightforward answer than tables. By looking at figures, although some information may be ignored, some important patterns may appear after such simplification.
+
+Note: a useful [link](http://docs.ggplot2.org/current/) for `ggplot2`.
+
+**Use plyr ro apply my functions within data.frames**
+
+First we define a function `gdprate`, from which we can compute the relative increasing rate of GDP per Capita for each country (which is computed by letting $y_n = \frac{x_{n+1}-x_n}{x_n}$, for all $n$, where $x_{n+1}$ and $x_n$ are two consecutive records of GDP per Capita for the same country, and $y_n$ is the relative increasing rate from the $n$th value to the $(n+1)$th value of GDP per Capita).
+```{r}
+f = function(x){
+  rate = c()
+  for(i in 1:dim(x)[1]-1){
+    rate[i] = (x$gdpPercap[i+1]-x$gdpPercap[i])/x$gdpPercap[i]
+  }
+  return(rate)
+}
+gdp.rate = ddply(gm, ~country, f)
+dim(gdp.rate)
+names(gdp.rate)[2:12] = c("1952/1957","1957/1962","1962/1967","1967/1972","1972/1977","1977/1982","1982/1987","1987/1992","1992/1997","1997/2002","2002/2007")
+```
+The data.frame gdp.rate has 142 rows, with each row corresponding to a specific country. Besides the varaible indicating the country names, there are 11 columns, corresponding to 11 increasing rates computed from 12 consecutive observations of the same country. The table below shows some examples.
+```{r}
+tail(gdp.rate)
+```
+To make the data for accessible, we do the following transformation.
+```{r}
+gdp.rate.t = data.frame(
+  country = rep(gdp.rate$country, each=11),
+  period = rep(c("1952/1957","1957/1962","1962/1967","1967/1972","1972/1977","1977/1982","1982/1987","1987/1992","1992/1997","1997/2002","2002/2007"), times=length(gdp.rate$country)),
+  rate = as.vector(t(gdp.rate[,-1]))
+)
+head(gdp.rate.t, n=30)
+```
+Now in order to detect any sudden, substantial change in GDP per Capita of a country, we concentrate on the extreme values in gdp.rate, such as maximum and the minimum increasing rate. Thus we can use `dplyr::mutate` to get a data.frame indicating these maximum and minimum, as well as their corresponding years.
+```{r}
+gdp.extreme.rate = ddply(gdp.rate.t, ~country, summarise, max.rate=max(rate) , min.rate=min(rate), max.period=which.max(rate), min.period=which.min(rate))
+gdp.extreme.rate = mutate(gdp.extreme.rate,
+       max.period = names(gdp.rate[,-1])[max.period],
+       min.period = names(gdp.rate[,-1])[min.period]
+)
+head(gdp.extreme.rate,n=20)
+```
+Then we locate some countries with the most sudden and substantial increase in GDP per Capita by using `dplyr::arrange`.
+```{r}
+arrange(gdp.extreme.rate,max.rate)
+```
+By looking at the last several countries, we can see Oman, Equatorial Guinea and Libya attained relatively greatest increasing rate of GDP per Capita between 1967 and 1972, 1997 and 2002, and 1962 and 1967, respectively. We may wonder why this happens. By looking up on Google, we know several facts about these three countries: (1) Libya joined in the Organization of the Petroleum Exporting Countries(OPEC) in 1962; (2) A latge oil reserves was discovered in 1996 in Equotorial Guinea, and its subsequent exploitation has made Equatorial Guinea become one of sub-Saharan Africa's largest oil producers; (3) Oil reserves in Oman were discovered in 1964 and extraction began in 1967; (4) The Sultan Qaboos bin Said al Said has been the hereditary leader of Oman since 1970. These can be considered as possible explanations of the sudden increase in GDP per Captita of these countries.
+
+Similarly, on the other hand, we can look at the opposite cases.
+```{r}
+arrange(gdp.extreme.rate,min.rate)
+```
+For the most extreme three cases, Iraq between 1987 and 1992, Korea(Dem.Rep.) between 1992 and 1997, and Kuwait between 1977 and 1982, we have the following facts from Google:(1) The Gulf War (2 August 1990 – 28 February 1991), codenamed Operation Desert Shield (2 August 1990 – 17 January 1991) for operations leading to the buildup of troops and defense of Saudi Arabia and Operation Desert Storm (17 January 1991 – 28 February 1991) in its combat phase, was a war waged by coalition forces from 34 nations led by the United States against Iraq in response to Iraq's invasion and annexation of Kuwait; (2) The Asian financial crisis was a period of financial crisis that gripped much of East Asia beginning in July 1997 and raised fears of a worldwide economic meltdown due to financial contagion, and South Korea was one of the most affected countries in the crisis; (3) In the early 1980s, Kuwait experienced a major economic crisis after the Souk Al-Manakh stock market crash and decrease in oil price.
+
+What's more, we may also interested in some specific country, such as France and Thailand for example.
+```{r}
+country.gdp = filter(gdp.rate.t, country == "France" | country == "Thailand")
+p = ggplot(country.gdp, aes(x=period,y=rate, group=country))
+p +geom_line(aes(colour = country))+geom_point()
+```
+From the plot, we can see for Thailand, there is a sudden increase in GDP per Capita during 1987 to 1992 (but I haven't inspected any historical events as potential explanations). On the other hand, between 1997 and 2002, the increasing rate of GDP per Capita attained its minimum. This may due to the Asian financial contgion beginning at 1997. For France, we can see the increasing rate in GDP per Capita is relatively static but the rate is decreasing over years.
+
+**Discussion**
+
+In this part, I found it very interesting to first detect some patterns or characteristics within data by statistical methods and then try to explain such phenomenon from the context or subject matters. `plyr::ddply` is a very useful and flexible data manipulation tool. For further reference: [`plyr:ddply`](http://stat545-ubc.github.io/block013_plyr-ddply.html), and [`dplyr`](http://stat545-ubc.github.io/block009_dplyr-intro.html).
+

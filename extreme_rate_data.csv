@@ -1,0 +1,143 @@
+"country","continent","max.rate","min.rate"
+"Afghanistan","Asia",0.341,-0.238
+"Albania","Europe",0.442,-0.332
+"Algeria","Africa",0.288,-0.154
+"Angola","Africa",0.73,-0.45
+"Argentina","Americas",0.453,-0.198
+"Australia","Oceania",0.189,0.062
+"Austria","Europe",0.441,0.076
+"Bahrain","Asia",0.273,-0.036
+"Bangladesh","Asia",0.224,-0.126
+"Belgium","Europe",0.268,0.074
+"Benin","Africa",0.242,-0.097
+"Bolivia","Americas",0.191,-0.205
+"Bosnia and Herzegovina","Europe",0.872,-0.41
+"Botswana","Africa",0.864,0.071
+"Brazil","Americas",0.454,-0.11
+"Bulgaria","Europe",0.414,-0.235
+"Burkina Faso","Africa",0.173,-0.13
+"Burundi","Africa",0.198,-0.267
+"Cambodia","Asia",0.912,-0.195
+"Cameroon","Africa",0.328,-0.311
+"Canada","Americas",0.194,-0.011
+"Central African Republic","Africa",0.112,-0.138
+"Chad","Africa",0.474,-0.296
+"Chile","Americas",0.369,-0.134
+"China","Asia",0.59,-0.153
+"Colombia","Americas",0.219,-0.059
+"Comoros","Africa",0.334,-0.395
+"Congo, Dem. Rep.","Africa",0.161,-0.32
+"Congo, Rep.","Africa",0.497,-0.139
+"Costa Rica","Americas",0.249,-0.112
+"Cote d'Ivoire","Africa",0.187,-0.236
+"Croatia","Europe",0.391,-0.389
+"Cuba","Americas",0.411,-0.258
+"Czech Republic","Europe",0.298,-0.123
+"Denmark","Europe",0.224,0.051
+"Djibouti","Africa",0.223,-0.203
+"Dominican Republic","Americas",0.324,-0.005
+"Ecuador","Americas",0.265,-0.223
+"Egypt","Africa",0.376,-0.023
+"El Salvador","Americas",0.16,-0.202
+"Equatorial Guinea","Africa",1.737,-0.266
+"Eritrea","Africa",0.567,-0.162
+"Ethiopia","Africa",0.303,-0.266
+"Finland","Europe",0.315,-0.023
+"France","Europe",0.239,0.048
+"Gabon","Africa",0.907,-0.305
+"Gambia","Africa",0.225,-0.268
+"Germany","Europe",0.426,0.048
+"Ghana","Africa",0.194,-0.157
+"Greece","Europe",0.495,0.056
+"Guatemala","Americas",0.243,-0.119
+"Guinea","Africa",0.191,-0.06
+"Guinea-Bissau","Africa",0.44,-0.277
+"Haiti","Americas",0.139,-0.201
+"Honduras","Americas",0.266,-0.032
+"Hong Kong, China","Asia",0.376,0.065
+"Hungary","Europe",0.267,-0.189
+"Iceland","Europe",0.287,-0.066
+"India","Asia",0.404,0.033
+"Indonesia","Asia",0.457,-0.102
+"Iran","Asia",0.628,-0.36
+"Iraq","Asia",0.534,-0.678
+"Ireland","Europe",0.397,0.075
+"Israel","Asia",0.523,0.041
+"Italy","Europe",0.319,0.022
+"Jamaica","Americas",0.641,-0.105
+"Japan","Asia",0.523,-0.007
+"Jordan","Asia",0.459,-0.23
+"Kenya","Africa",0.178,-0.054
+"Korea, Dem. Rep.","Asia",0.727,-0.546
+"Korea, Rep.","Asia",0.537,0.033
+"Kuwait","Asia",0.352,-0.471
+"Lebanon","Asia",0.282,-0.296
+"Lesotho","Africa",0.501,-0.029
+"Liberia","Africa",0.258,-0.22
+"Libya","Africa",1.778,-0.322
+"Madagascar","Africa",0.168,-0.156
+"Malawi","Africa",0.229,-0.114
+"Malaysia","Asia",0.392,-0.012
+"Mali","Africa",0.204,-0.1
+"Mauritania","Africa",0.346,-0.056
+"Mauritius","Africa",0.441,-0.021
+"Mexico","Americas",0.256,-0.096
+"Mongolia","Asia",0.446,-0.236
+"Montenegro","Europe",0.411,-0.403
+"Morocco","Africa",0.228,-0.046
+"Mozambique","Africa",0.341,-0.307
+"Myanmar","Asia",0.545,-0.101
+"Namibia","Africa",0.21,-0.119
+"Nepal","Asia",0.157,-0.002
+"Netherlands","Europe",0.261,0.009
+"New Zealand","Oceania",0.16,-0.034
+"Nicaragua","Americas",0.278,-0.367
+"Niger","Africa",0.194,-0.265
+"Nigeria","Africa",0.674,-0.204
+"Norway","Europe",0.229,0.077
+"Oman","Asia",1.249,0.004
+"Pakistan","Asia",0.245,0.021
+"Panama","Americas",0.333,-0.059
+"Paraguay","Americas",0.311,-0.109
+"Peru","Americas",0.313,-0.301
+"Philippines","Asia",0.216,-0.159
+"Poland","Europe",0.313,-0.148
+"Portugal","Europe",0.418,0.027
+"Puerto Rico","Americas",0.356,0.025
+"Reunion","Africa",0.267,-0.144
+"Romania","Europe",0.371,-0.319
+"Rwanda","Africa",0.332,-0.2
+"Sao Tome and Principe","Africa",0.292,-0.198
+"Saudi Arabia","Asia",0.469,-0.371
+"Senegal","Africa",0.127,-0.051
+"Serbia","Europe",0.391,-0.412
+"Sierra Leone","Africa",0.233,-0.462
+"Singapore","Asia",0.727,0.075
+"Slovak Republic","Europe",0.37,-0.211
+"Slovenia","Europe",0.391,-0.239
+"Somalia","Africa",0.157,-0.189
+"South Africa","Africa",0.233,-0.087
+"Spain","Europe",0.404,0.052
+"Sri Lanka","Asia",0.317,-0.01
+"Sudan","Africa",0.327,-0.205
+"Swaziland","Africa",0.491,-0.108
+"Sweden","Europe",0.244,0.012
+"Switzerland","Europe",0.216,-0.008
+"Syria","Asia",0.366,-0.171
+"Taiwan","Asia",0.537,0.15
+"Tanzania","Africa",0.232,-0.092
+"Thailand","Asia",0.548,0.01
+"Togo","Africa",0.384,-0.14
+"Trinidad and Tobago","Americas",0.571,-0.19
+"Tunisia","Africa",0.425,-0.05
+"Turkey","Europe",0.3,-0.014
+"Uganda","Africa",0.268,-0.191
+"United Kingdom","Europe",0.188,0.046
+"United States","Americas",0.208,0.039
+"Uruguay","Americas",0.373,-0.163
+"Venezuela","Americas",0.327,-0.154
+"Vietnam","Asia",0.401,-0.175
+"West Bank and Gaza","Asia",0.206,-0.365
+"Yemen, Rep.","Asia",0.467,-0.047
+"Zambia","Africa",0.223,-0.139
+"Zimbabwe","Africa",0.403,-0.301

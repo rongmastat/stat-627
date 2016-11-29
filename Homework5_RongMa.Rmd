@@ -1,0 +1,72 @@
+---
+title: "Homework5_RongMa"
+author: "Rong Ma"
+date: "12/10/2015"
+output: html_document
+---
+
+##Download file
+
+```{r}
+download.file("https://raw.githubusercontent.com/jennybc/gapminder/master/inst/gapminder.tsv", destfile = "gapminder.tsv", method = "libcurl")
+```
+
+##Data Analysis & Write File
+
+```{r}
+library(plyr)
+library(dplyr)
+library(tidyr)
+gap <- read.delim("gapminder.tsv", sep="\t")
+
+#A Function Computing the GDP increasing rate for each country
+gdp.rate <- function(x, year = 12){
+  stopifnot(is.data.frame(x))
+  stopifnot(is.numeric(x$gdpPercap))
+  rate <- x %>% mutate(rate = (gdpPercap - lag(gdpPercap))/lag(gdpPercap)) %>% select(rate)
+  return(rate[2:year,1])
+}
+
+#Generate extreme.rate.data showing maximum and minimum GDP increasing rate for each country.
+gdp.rate.data <- ddply(gap, ~country, gdp.rate)
+years <- gap %>% select(year) %>% unique()
+year.index <- paste0(years[1:11,1], rep("/",11),years[2:12,1])
+names(gdp.rate.data)[-1] <- year.index
+max.rate <- gdp.rate.data %>% select(2:dim(years)[1]) %>% apply(1,max)
+min.rate <- gdp.rate.data %>% select(2:dim(years)[1]) %>% apply(1,min)
+continent <- (gap %>% select(country,continent) %>% unique())[,2]
+extreme.rate.data <- gdp.rate.data %>% mutate(max.rate,min.rate,continent) %>% select(country, continent, max.rate, min.rate)
+extreme.rate.data[,3:4] <- extreme.rate.data[,3:4] %>% round(digits = 3)
+
+#write file
+write.csv(extreme.rate.data, "extreme_rate_data.csv", row.names = FALSE)
+```
+
+##Read File & Make Plot
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+#Read csv file
+extreme.rate.data <- read.csv("extreme_rate_data.csv", header = TRUE)
+
+#Generate some figures
+plot0 <- ggplot(extreme.rate.data,aes(log(max.rate),min.rate)) 
+plot0 <- plot0 + geom_point(aes(colour = continent)) + labs(title = "GDP increasing rate")
+plot0
+new.extreme.rate.data <- extreme.rate.data %>% filter(continent != "Oceania")
+new.extreme.rate.data <- new.extreme.rate.data %>% droplevels()
+order.rate.data <- new.extreme.rate.data %>% mutate(continent = reorder(continent, max.rate))
+means.continent <- (order.rate.data %>% group_by(continent) %>% summarize_each(funs(mean), max.rate))
+p <- ggplot(new.extreme.rate.data, aes(x = continent, y = log(max.rate)))
+plot1 <- p + geom_boxplot() + geom_line(data = means.continent, aes(x = continent, y = log(max.rate), group=1)) + labs(title = "BEFORE reordering")
+plot1
+p <- ggplot(order.rate.data, aes(x = continent, y = log(max.rate)))
+plot2 <- p + geom_boxplot() + geom_line(data = means.continent, aes(x = continent, y = log(max.rate), group=1)) + labs(title = "AFTER reordering")
+plot2
+pdf(file="plot_RongMa.pdf") 
+print(plot0) 
+print(plot1)
+print(plot2) 
+dev.off() 
+```
